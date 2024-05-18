@@ -13,6 +13,23 @@ uri = f"mongodb+srv://{USERNAME}:{PASSWORD}@{HOST}"
 # Set the Stable API version when creating a new client
 client = MongoClient(uri, server_api=ServerApi('1'))
 
+def query1():
+    # 1. Listar todos os cursos oferecidos por um determinado departamento
+    DEPARTAMENT = "Mech. Eng."
+    collection = database["course"]
+
+    results = collection.find({ "dept_name": DEPARTAMENT})
+    todos_os_cursos = []
+
+    for t in results:
+        todos_os_cursos.append(t['title'])
+    
+    if(len(todos_os_cursos) > 0):
+        print(f"Os cursos oferecidos pelo departamento de {DEPARTAMENT} são:")
+        for curso in todos_os_cursos:
+            print(curso)
+    else:
+        print(f"Não há nenhum resultado de curso oferecido pelo departamento {DEPARTAMENT}.")
 
 def query3():
     # 3. Encontrar todos os estudantes que estão matriculados em um curso específico
@@ -114,22 +131,17 @@ def query7():
             print("Aluno:", aluno)
     else:
         print(f"Não foi encontrado nenhum resultado de busca de aluno para o professor de id {id_prof_orientador}")
+
+
 try:
     database = client["BancoNovo"]
 
     # 1. Listar todos os cursos oferecidos por um determinado departamento
-    collection = database["course"]
-
-    results = collection.find({ "dept_name": "Mech. Eng." })
-    DEPARTAMENT = "Mech. Eng."
-    # print(f"1. Todos os cursos oferecidos pelo departamento de {DEPARTAMENT}:")
-    # for f in results:
-        # print(f['title']) 
+    # query1()
 
     # 2. Recuperar todas as disciplinas de um curso específico em um determinado semestre
     collection1 = database["takes"]
 
-    print("Numero 2:")
     results = collection1.find({ "course_id": "169"})
 
     cursoESemestre = []
@@ -156,7 +168,7 @@ try:
     # query6()
 
     # 7. Listar todos os estudantes que têm um determinado professor como orientador
-    query7()
+    # query7()
     client.close()
 
 except Exception as e:
