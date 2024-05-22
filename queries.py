@@ -4,7 +4,6 @@ import psycopg2
 import json
 from decimal import Decimal
 
-
 host = 'motty.db.elephantsql.com'  
 database = 'gkfzpfqp'  
 user = 'gkfzpfqp'  
@@ -90,7 +89,6 @@ def fetch_table_data(host, database, user, password, table_name):
     connection.close()
 
     return table_data
-
 
 def envia_dados_do_post_para_o_mongo():
     for table_name in tabelas:
@@ -218,11 +216,6 @@ def average_salaries_of_teachers_in_a_given_department(dept_name = "Comp. Sci.")
     media = 0
     for salario in salarios:
         total += float(salario)
-    
-    if(len(salarios) > 0):
-        media = total/len(salarios)
-    else:
-        media = 0
 
     media = total/len(salarios) if(len(salarios) > 0) else 0
 
