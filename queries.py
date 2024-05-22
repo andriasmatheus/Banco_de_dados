@@ -102,9 +102,36 @@ def envia_dados_do_post_para_o_mongo():
         #Inserir os dados na coleção
         colecao.insert_many(table_data)
 
-def query1():
+def get_instructor_name_by_id(instructor_id):
+    collection = schema['instructor']
+    instructor = collection.find({"id": instructor_id})
+    for i in instructor:
+        if(i['id'] == instructor_id):
+            return i['name']
+        else:
+            return "de id: " + i['id']
+        
+def get_student_name_by_id(student_id):
+    collection = schema['student']
+    student = collection.find({"id": student_id})
+    for i in student:
+        if(i['id'] == student_id):
+            return i['name']
+        else:
+            return "de id: " + i['id']
+        
+def get_course_name_by_id(course_id):
+    collection = schema['course']
+    course = collection.find({"course_id": course_id})
+    for i in course:
+        if(i['course_id'] == course_id):
+            return i['title']
+        else:
+            return "de id: " + i['id']
+        
+def list_all_courses_offered_by_a_given_department(dept_name = "Comp. Sci."):
     # 1. Listar todos os cursos oferecidos por um determinado departamento
-    DEPARTAMENT = "Mech. Eng."
+    DEPARTAMENT = dept_name
     collection = schema["course"]
 
     results = collection.find({ "dept_name": DEPARTAMENT})
@@ -118,9 +145,9 @@ def query1():
         for curso in todos_os_cursos:
             print(curso)
     else:
-        print(f"Não há nenhum resultado de curso oferecido pelo departamento {DEPARTAMENT}.")
+        print(f"Não há nenhum resultado de curso oferecido pelo departamento {DEPARTAMENT}")
 
-def query2(semester = "Fall"):
+def retrieve_all_subjects_from_a_specific_course_in_a_given_semester(semester = "Fall"):
     # 2. Recuperar todas as disciplinas de um curso específico em um determinado semestre
 
     SEMESTER = semester
@@ -147,7 +174,7 @@ def query2(semester = "Fall"):
     else:
         print(f"Não possui nenhum registro de curso no semestre {SEMESTER}")
 
-def find_all_students_who_are_enrolled_in_a_specific_course(course_id = "802"):
+def find_all_students_who_are_enrolled_in_a_specific_course(course_id = "CS-101"):
     # 3. Encontrar todos os estudantes que estão matriculados em um curso específico
 
     COURSE_ID = course_id
@@ -172,12 +199,13 @@ def find_all_students_who_are_enrolled_in_a_specific_course(course_id = "802"):
     course = courseCollection.find({"course_id": COURSE_ID})
     for k in course:
         nome_curso = k['title']
-    print(f"Os alunos matriculados no curso {nome_curso}, são:")
+        print(f"Os alunos matriculados no curso {nome_curso}, são:")
+        
     # Imprimir os nomes dos alunos matriculados no curso específico
     for name in students_names:
         print(name)
 
-def average_salaries_of_teachers_in_a_given_department(dept_name = "Cybernetics"):
+def average_salaries_of_teachers_in_a_given_department(dept_name = "Comp. Sci."):
     # 4. Listar a média de salários de todos os professores em um determinado departamento
     DEPARTAMENT_NAME = dept_name
     collection = schema["instructor"]
@@ -190,11 +218,17 @@ def average_salaries_of_teachers_in_a_given_department(dept_name = "Cybernetics"
     media = 0
     for salario in salarios:
         total += float(salario)
-    media = total/len(salarios)
+    
+    if(len(salarios) > 0):
+        media = total/len(salarios)
+    else:
+        media = 0
+
+    media = total/len(salarios) if(len(salarios) > 0) else 0
 
     print("A média dos salários dos professores de Cybernetics é: {:.2f}".format(media))
 
-def total_number_of_credits_earned_by_a_specific_student(student_id = "84702"):
+def total_number_of_credits_earned_by_a_specific_student(student_id = "00128"):
     # 5. Recuperar o número total de créditos obtidos por um estudante específico
 
     STUDENT_ID = student_id
@@ -205,10 +239,9 @@ def total_number_of_credits_earned_by_a_specific_student(student_id = "84702"):
     for aluno in alunos:
         total_credito += float(aluno['tot_cred'])
         aluno_nome = aluno['name']
+        print(f"Total de crédito obtido do aluno {aluno_nome}:", total_credito)
 
-    print(f"Total de crédito obtido do aluno {aluno_nome}:", total_credito)
-
-def find_all_courses_taught_by_a_professor_in_a_specific_semester(semester = "Fall", teacher_id = "28097"):
+def find_all_courses_taught_by_a_professor_in_a_specific_semester(semester = "Fall", teacher_id = "10101"):
     # 6. Encontrar todas as disciplinas ministradas por um professor em um semestre específico
 
     SEMESTER = semester
@@ -230,13 +263,13 @@ def find_all_courses_taught_by_a_professor_in_a_specific_semester(semester = "Fa
                 resultado_query.append(course['title'])
 
     if(len(resultado_query) > 0):
-        print(f"Curso ministrado pelo professor de id {TEACHER_ID} no semestre {SEMESTER}:")
+        print(f"Curso(s) ministrado pelo professor {get_instructor_name_by_id(TEACHER_ID)} no semestre {SEMESTER}:")
         for resultado in resultado_query:
             print(resultado)
     else:
-        print(f"Não foi encontrado nenhum resultado para o professor de id {TEACHER_ID} e semestre {SEMESTER}")
+        print(f"Não foi encontrado nenhum resultado para o professor {get_instructor_name_by_id(TEACHER_ID)} e semestre {SEMESTER}")
 
-def all_students_who_have_a_specific_teacher_as_their_advisor(teacher_id = "19368"):
+def all_students_who_have_a_specific_teacher_as_their_advisor(teacher_id = "10101"):
     # 7. Listar todos os estudantes que têm um determinado professor como orientador
 
     TEACHER_ID = teacher_id
@@ -249,12 +282,28 @@ def all_students_who_have_a_specific_teacher_as_their_advisor(teacher_id = "1936
 
     if(len(students) > 0):
         for student in students:
-            print("Aluno:", student)
+            print("Aluno:", get_student_name_by_id(student))
     else:
-        print(f"Não foi encontrado nenhum resultado de busca de aluno para o professor de id {TEACHER_ID}")
+        print(f"Não foi encontrado nenhum resultado de busca de aluno para o professor {get_instructor_name_by_id(TEACHER_ID)}")
 
+def recover_all_classrooms_without_an_associated_course():
+    # 8. Recuperar todas as salas de aula sem um curso associado
+    collection2 = schema['section']
+    cursos = collection2.find()
 
-def find_all_prerequisites_for_a_specific_course(course_id = "376"):
+    result = []
+    for curso in cursos:
+        if curso['course_id'] == '':
+            result.append(curso['room_number'])
+    
+    if(len(result) > 0):
+        print("A(s) sala(s) sem curso associado é(são):")
+        for sala in result:
+            print(sala)
+    else:
+        print("Não possui sala sem curso associado")
+
+def find_all_prerequisites_for_a_specific_course(course_id = "BIO-301"):
     # 9. Encontrar todos os pré-requisitos de um curso específico
 
     COURSE_ID = course_id
@@ -267,7 +316,7 @@ def find_all_prerequisites_for_a_specific_course(course_id = "376"):
         prereqs_list.append(t['prereq_id'])
 
     if(len(prereqs_list) > 0):
-        print(f"O(s) pré-requisito(s) para o curso de id {COURSE_ID}, é(são):")
+        print(f"O(s) pré-requisito(s) para o curso {get_course_name_by_id(COURSE_ID)}, é(são):")
         for prereq in prereqs_list:
             print(prereq)
     else:
@@ -296,7 +345,7 @@ def recover_the_number_of_students_guided_by_each_teacher():
 
     for professor in lista_professores:
         qtd = lista_resultado[professor]
-        print(f"O professor de id {professor} orienta {qtd} aluno")
+        print(f"O professor {get_instructor_name_by_id(professor)} orienta {qtd} aluno(s)")
 
 
 try:
@@ -311,10 +360,10 @@ try:
     ###                                     Descomente a query a ser usada:                                              ###
     ### ---------------------------------------------------------------------------------------------------------------- ###
     # 1. Listar todos os cursos oferecidos por um determinado departamento
-    # query1()
+    # list_all_courses_offered_by_a_given_department()
 
     # 2. Recuperar todas as disciplinas de um curso específico em um determinado semestre
-    # query2()
+    # retrieve_all_subjects_from_a_specific_course_in_a_given_semester()
 
     # 3. Encontrar todos os estudantes que estão matriculados em um curso específico
     # find_all_students_who_are_enrolled_in_a_specific_course()
@@ -332,6 +381,7 @@ try:
     # all_students_who_have_a_specific_teacher_as_their_advisor()
 
     # 8. Recuperar todas as salas de aula sem um curso associado
+    # recover_all_classrooms_without_an_associated_course()
 
     # 9. Encontrar todos os pré-requisitos de um curso específico
     # find_all_prerequisites_for_a_specific_course()
