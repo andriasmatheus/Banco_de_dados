@@ -3,6 +3,7 @@ from pymongo.server_api import ServerApi
 import psycopg2
 import json
 from decimal import Decimal
+import insereDadosNoPostgree
 
 host = 'motty.db.elephantsql.com'  
 database = 'gkfzpfqp'  
@@ -51,10 +52,6 @@ def drop_all_tables():
     except Exception as e:
         print(f"Ocorreu um erro ao tentar remover as coleções do banco de dados: {e}")
 
-    finally:
-        # Fechar a conexão
-        if client:
-            client.close()
 
 def decimal_converter(obj):
     if isinstance(obj, Decimal):
@@ -63,7 +60,7 @@ def decimal_converter(obj):
 
 # Função para conectar ao banco de dados e extrair os dados da tabela
 def fetch_table_data(host, database, user, password, table_name):
-    # Conexão com o banco de dados
+    # Conexão com o banco de dados postgree
     connection = psycopg2.connect(host=host, database=database, user=user, password=password)
     cursor = connection.cursor()
 
@@ -342,45 +339,47 @@ def recover_the_number_of_students_guided_by_each_teacher():
 
 
 try:
-    # drop_all_tables()
+    insereDadosNoPostgree.insereNoPostgree()
+
+    drop_all_tables()   # Remove todas as tabelas do MongoDB
 
     ### ---------------------------------------------------------------------------------------------------------------- ###
     ###                        Criação das tabelas e inserção dos dados no cassandra:                                    ###
     ### ---------------------------------------------------------------------------------------------------------------- ###
-    # envia_dados_do_post_para_o_mongo() # Essa função deve ser executada apenas uma vez após executar a drop_all_tables()
+    envia_dados_do_post_para_o_mongo() # Essa função deve ser executada apenas uma vez após executar a drop_all_tables()
 
     ### ---------------------------------------------------------------------------------------------------------------- ###
     ###                                     Descomente a query a ser usada:                                              ###
     ### ---------------------------------------------------------------------------------------------------------------- ###
     # 1. Listar todos os cursos oferecidos por um determinado departamento
-    # list_all_courses_offered_by_a_given_department()
+    list_all_courses_offered_by_a_given_department()
 
     # 2. Recuperar todas as disciplinas de um curso específico em um determinado semestre
-    # retrieve_all_subjects_from_a_specific_course_in_a_given_semester()
+    retrieve_all_subjects_from_a_specific_course_in_a_given_semester()
 
     # 3. Encontrar todos os estudantes que estão matriculados em um curso específico
-    # find_all_students_who_are_enrolled_in_a_specific_course()
+    find_all_students_who_are_enrolled_in_a_specific_course()
 
     # 4. Listar a média de salários de todos os professores em um determinado departamento
-    # average_salaries_of_teachers_in_a_given_department()
+    average_salaries_of_teachers_in_a_given_department()
 
     # 5. Recuperar o número total de créditos obtidos por um estudante específico
-    # total_number_of_credits_earned_by_a_specific_student()
+    total_number_of_credits_earned_by_a_specific_student()
 
     # 6. Encontrar todas as disciplinas ministradas por um professor em um semestre específico
-    # find_all_courses_taught_by_a_professor_in_a_specific_semester()
+    find_all_courses_taught_by_a_professor_in_a_specific_semester()
 
     # 7. Listar todos os estudantes que têm um determinado professor como orientador
-    # all_students_who_have_a_specific_teacher_as_their_advisor()
+    all_students_who_have_a_specific_teacher_as_their_advisor()
 
     # 8. Recuperar todas as salas de aula sem um curso associado
-    # recover_all_classrooms_without_an_associated_course()
+    recover_all_classrooms_without_an_associated_course()
 
     # 9. Encontrar todos os pré-requisitos de um curso específico
-    # find_all_prerequisites_for_a_specific_course()
+    find_all_prerequisites_for_a_specific_course()
 
     # 10. Recuperar a quantidade de alunos orientados por cada professor
-    # recover_the_number_of_students_guided_by_each_teacher()
+    recover_the_number_of_students_guided_by_each_teacher()
 
     client.close()
 
